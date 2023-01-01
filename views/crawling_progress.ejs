@@ -1,0 +1,60 @@
+<h1>Crawling Progress</h1>
+<style>
+  #crawlingProgress {
+    width: 100%;
+    background-color: #ddd;
+  }
+  
+  #crawlingBar {
+    width: 0%;
+    height: 30px;
+    background-color: #04AA6D;
+    text-align: center;
+    line-height: 30px;
+    color: white;
+  }
+</style>
+<body>
+<div id="crawlingProgress">
+  <div id="crawlingBar">0%</div>
+</div>
+<div>
+  <label id="crawlingStatus">Crawling Status...</label>
+</div>
+
+<div id="goback" style="margin-top: 50px;" hidden>
+  <a href="/crawling">Go back WebCrawler</a>
+</div>
+</body>
+
+<script>
+  var progressBar = document.getElementById("crawlingBar");
+  var crawlingStatus = document.getElementById("crawlingStatus");
+  var progress = 0;
+  var isComplete = false;
+
+  var i = setInterval(function(){
+    // do your thing
+    let fetchRes = fetch('http://localhost:3000/progress')
+    fetchRes.then(res => res.json()).then(jsonResult => { 
+      
+      progress = jsonResult.progress;
+      crawlingStatus.innerHTML = jsonResult.status;
+      isComplete = jsonResult.is_complete;
+
+      progressBar.style.width = jsonResult.progress + "%";
+      progressBar.innerHTML = jsonResult.progress  + "%";
+      
+    })
+
+
+    if(isComplete) {
+      console.log('Crawling Process Completed')
+      document.getElementById("goback").hidden = false;
+      progressBar.style.width =  "100%";
+      progressBar.innerHTML = "100%";
+      
+      clearInterval(i);
+    }
+  }, 200);
+</script>

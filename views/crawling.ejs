@@ -1,0 +1,41 @@
+<head>
+<style>
+.button {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.submitButton {background-color: #4CAF50;} /* Green */
+</style>
+</head>
+<h1>Crawling</h1>
+<form action="/crawling" method="POST">
+    <div style="margin-top: 10px;">
+        <label for="book_name">Book Name</label>
+        <input type="text" id="book_name" name="book_name" size="50" placeholder="Bảo Hộ Bên Ta Tộc Trưởng" required>
+    </div>
+    <div style="margin-top: 5px;"> 
+        <label for="book_cover_uri">Book Cover URI</label>
+        <input type="text" id="book_cover_uri" name="book_cover_uri" size="100" placeholder="https://readslove.com/story/cover/5f9708/bhpttt.jpg">
+    </div>
+    <div style="margin-top: 10px;">
+        <label for="web_url">Base Web URL</label>
+        <input type="url" id="web_url" name="web_url" size="100" placeholder="https://metruyencv.com/truyen/bao-ho-phe-ta-toc-truong/" required>
+    </div>
+    <div style="margin-top: 5px;">
+        <label for="techapter_postfixxt">Chapter Postfix</label>
+        <input type="text" id="chapter_postfix" name="chapter_postfix" size="15" placeholder="chuong-" required>
+    </div>
+    <div style="margin-top: 5px;">
+        <label for="chapter_number">Number of Chapter</label>
+        <input type="number" id="chapter_number" name="chapter_number" size="5" placeholder="10" min="1" required>
+    </div>
+    <button class="button submitButton" type="submit" >Crawling</button>
+</form>
