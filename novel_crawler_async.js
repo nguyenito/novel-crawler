@@ -1,12 +1,15 @@
 const Epub = require('epub-gen');
 
-class NovelCrawler {
+const REQUEST_INTERVAL = 10;
+
+class NovelCrawlerAsync {
   constructor(crawlerStrategy) {
     this.is_complete = false;
     this.progress = 0;
     this.status = '';
     this.strategy = crawlerStrategy;
     this.book_chapter = 1;
+    this.novels = [];
   }
 
   creatEpubOption() {
@@ -32,6 +35,18 @@ class NovelCrawler {
     this.book_chapter = this.book_chapter + 1;
   }
 
+  async getNovelContentFromAsync(novelsPromises) {
+    if (novelsPromises.length == 0) return;
+
+    const novelsContent = await Promise.all(novelsPromises);
+    this.novels.push(...novelsContent);
+  }
+
+  updateProgress(progressUnitPlus) {
+    if (this.progress + progressUnitPlus > 100) this.progress = 100;
+    else this.progress += progressUnitPlus;
+  }
+
   async startCrawler(
     bookName,
     webURLBase,
@@ -51,27 +66,50 @@ class NovelCrawler {
     epubOptions.cover = bookCoverURI;
     epubOptions.title = bookName;
     epubOptions.tocTitle = 'Chapter List: ' + bookName;
+    let novelsPromises = [];
+    var requestIteration = 1;
+    this.novels = [];
+
+    var startTime = performance.now();
     for (let i = 1; i <= numChapter; i++) {
       var webChapterURL = webURLChapterBase + i;
-      this.status = 'Crawling web url: ' + webChapterURL;
+      this.status = 'Request crawling for web url: ' + webChapterURL;
       console.log(this.status);
 
       try {
-        const novel = await this.strategy.retrieveNovelContent(webChapterURL);
-
-        this.updateChappterContent(
-          epubOptions,
-          novel.chapterTitle,
-          novel.chapterContents
-        );
+        novelsPromises.push(this.strategy.retrieveNovelContent(webChapterURL));
       } catch {
         console.log('Exception when retrive novel content');
         break;
       }
-
-      if (this.progress + this.progress > 100) this.progress = 100;
-      else this.progress += progressUnit;
+      if (i % REQUEST_INTERVAL == 0) {
+        this.status = 'Wait for novel content at iteration ' + requestIteration;
+        await this.getNovelContentFromAsync(novelsPromises);
+        novelsPromises = [];
+        this.updateProgress(REQUEST_INTERVAL * progressUnit);
+        ++requestIteration;
+      }
     }
+    if (novelsPromises.length > 0) {
+      this.status = 'Wait for novel content at iteration ' + requestIteration;
+      await this.getNovelContentFromAsync(novelsPromises);
+      this.updateProgress(REQUEST_INTERVAL * progressUnit);
+    }
+
+    var endTime = performance.now();
+    console.log(
+      `Novel Crawling took ${(endTime - startTime) / 1000.0} seconds`
+    );
+
+    for (const novel of this.novels) {
+      console.log('Update novel content to epub: ', novel.chapterTitle);
+      this.updateChappterContent(
+        epubOptions,
+        novel.chapterTitle,
+        novel.chapterContents
+      );
+    }
+
     await this.strategy.close();
 
     bookName = 'epubs/' + bookName + '.epub';
@@ -83,4 +121,4 @@ class NovelCrawler {
   }
 }
 
-module.exports = NovelCrawler;
+module.exports = NovelCrawlerAsync;

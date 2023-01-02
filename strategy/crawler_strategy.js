@@ -5,7 +5,6 @@ class CrawlerStrategy {
   async init() {
     console.log('CrawlerStrategy INIT');
     this.browser = await puppeteer.launch();
-    this.page = await this.browser.newPage();
   }
 
   async close() {

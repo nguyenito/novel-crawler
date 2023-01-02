@@ -16,10 +16,11 @@ const { async } = require('q');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const NovelCrawler = require('./novel_crawler');
-const { MeTruyenCvStrategy } = require('./metruyencv_strategy.js');
-const { TruyenDichZStrategy } = require('./truyendichz_strategy.js');
+const NovelCrawlerAsync = require('./novel_crawler_async');
+const { MeTruyenCvStrategy } = require('./strategy/metruyencv_strategy.js');
+const { TruyenDichZStrategy } = require('./strategy/truyendichz_strategy.js');
 
-const crawler = new NovelCrawler(new MeTruyenCvStrategy());
+const crawler = new NovelCrawlerAsync(new MeTruyenCvStrategy());
 // const crawler = new NovelCrawler(new TruyenDichZStrategy());
 
 app.get('/', (req, res) => {

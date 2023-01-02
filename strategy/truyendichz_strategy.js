@@ -7,15 +7,18 @@ class TruyenDichZStrategy extends CrawlerStrategy {
   }
 
   async retrieveNovelContent(webURL) {
-    await this.page.goto(webURL);
+    console.log('Go to link: ', webURL);
+    const page = await this.browser.newPage();
+    await page.goto(webURL);
 
-    const chapterTitle = await this.page.evaluate(() => {
+    console.log('Query Chapter Contetn From: ', webURL);
+    const chapterTitle = await page.evaluate(() => {
       return Array.from(
         document.querySelectorAll(`[class*="lh-name-chapter"]`)
       ).map((x) => x.textContent);
     });
 
-    const chapterContents = await this.page.evaluate(() => {
+    const chapterContents = await page.evaluate(() => {
       return Array.from(document.querySelectorAll(`[id*="read-content"]`)).map(
         (x) => x.outerHTML
       );
