@@ -16,9 +16,11 @@ const { async } = require('q');
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const NovelCrawler = require('./novel_crawler');
-const { MeTruyenCvStrategy } = require('./crawler_strategy.js');
+const { MeTruyenCvStrategy } = require('./metruyencv_strategy.js');
+const { TruyenDichZStrategy } = require('./truyendichz_strategy.js');
 
 const crawler = new NovelCrawler(new MeTruyenCvStrategy());
+// const crawler = new NovelCrawler(new TruyenDichZStrategy());
 
 app.get('/', (req, res) => {
   res.render('crawling.ejs');
@@ -35,7 +37,7 @@ app.get('/progress', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.end(
     JSON.stringify({
-      progress: crawler.progress,
+      progress: parseFloat(crawler.progress).toPrecision(3),
       status: crawler.status,
       is_complete: crawler.is_complete,
     })

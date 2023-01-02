@@ -42,7 +42,9 @@ class NovelCrawler {
     this.is_complete = false;
     this.progress = 0;
     var webURLChapterBase = webURLBase + chapterPostFix;
-    var progressUnit = Math.ceil(100.0 / numChapter);
+    var progressUnit = 100.0 / numChapter;
+    console.log('Total Chap: ', numChapter);
+    console.log('Progress Unit per Chap: ', progressUnit);
     await this.strategy.init();
 
     const epubOptions = this.creatEpubOption();
@@ -54,15 +56,23 @@ class NovelCrawler {
       this.status = 'Crawling web url: ' + webChapterURL;
       console.log(this.status);
 
-      const novel = await this.strategy.retrieveNovelContent(webChapterURL);
+      try {
+        const novel = await this.strategy.retrieveNovelContent(webChapterURL);
 
-      this.updateChappterContent(
-        epubOptions,
-        novel.chapterTitle,
-        novel.chapterContents
-      );
+        this.updateChappterContent(
+          epubOptions,
+          novel.chapterTitle,
+          novel.chapterContents
+        );
+      } catch {
+        console.log('Exception when retrive novel content');
+        break;
+      }
+
       if (this.progress + this.progress > 100) this.progress = 100;
       else this.progress += progressUnit;
+
+      console.log('Crawling progress: ', this.progress);
     }
     await this.strategy.close();
 
